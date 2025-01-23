@@ -1,44 +1,46 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { motion, useInView } from "framer-motion"
-import { useFetchProductsQuery } from "@/redux/productsApi"
-import { useFetchCategoryQuery } from "@/redux/productsApi"
-import { ProductCard } from "@/components/product-card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Star, ArrowRight, ShoppingBag, Truck, RefreshCcw, ShieldCheck } from "lucide-react"
-import Arina from "../../public/avatars/arina.jpg"
-import Badr from "../../public/avatars/badr.jpg"
-import Samia from "../../public/avatars/samia.jpg"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { motion, useInView } from "framer-motion";
+import { useFetchProductsQuery } from "@/redux/productsApi";
+import { useFetchCategoryQuery } from "@/redux/productsApi";
+import { ProductCard } from "@/components/product-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Star, ArrowRight, ShoppingBag, Truck, RefreshCcw, ShieldCheck } from "lucide-react";
+import Arina from "../../public/avatars/arina.jpg";
+import Badr from "../../public/avatars/badr.jpg";
+import Samia from "../../public/avatars/samia.jpg";
+import { useRouter } from "next/navigation";
 
-const UNSPLASH_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY
+const UNSPLASH_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+
 const Dashboard = () => {
-  const router = useRouter()
-  const { data: newArrivals, isLoading: isLoadingNewArrivals } = useFetchProductsQuery({ limit: 4 })
-  const { data: popularCategory, isLoading: isLoadingPopularCategory } = useFetchCategoryQuery("laptops")
-  const [heroImage, setHeroImage] = useState("")
-  const [galleryImages, setGalleryImages] = useState<string[]>([])
+  const router = useRouter();
+  const { data: newArrivals = { products: [] }, isLoading: isLoadingNewArrivals } = useFetchProductsQuery({ limit: 4 });
+  const { data: popularCategory = { products: [] }, isLoading: isLoadingPopularCategory } = useFetchCategoryQuery("laptops");
+  const [heroImage, setHeroImage] = useState("");
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+
   function getSeasonHeading() {
-    const month = new Date().getMonth() // January is 0, December is 11
-    const year = new Date().getFullYear()
-    let season = ""
+    const month = new Date().getMonth(); // January is 0, December is 11
+    const year = new Date().getFullYear();
+    let season = "";
 
     if (month >= 2 && month <= 4) {
-      season = "Spring"
+      season = "Spring";
     } else if (month >= 5 && month <= 7) {
-      season = "Summer"
+      season = "Summer";
     } else if (month >= 8 && month <= 10) {
-      season = "Autumn"
+      season = "Autumn";
     } else {
-      season = "Winter"
+      season = "Winter";
     }
 
-    return `${season} Collection ${year}`
+    return `${season} Collection ${year}`;
   }
 
   useEffect(() => {
@@ -46,12 +48,14 @@ const Dashboard = () => {
     fetch(`https://api.unsplash.com/photos/random?query=fashion&orientation=landscape&client_id=${UNSPLASH_KEY}`)
       .then((res) => res.json())
       .then((data) => setHeroImage(data.urls.regular))
+      .catch(() => setHeroImage("/placeholder.svg"));
 
     // Fetch gallery images from Unsplash
     fetch(`https://api.unsplash.com/photos/random?count=6&query=lifestyle&client_id=${UNSPLASH_KEY}`)
       .then((res) => res.json())
       .then((data) => setGalleryImages(data.map((img: any) => img.urls.small)))
-  }, [])
+      .catch(() => setGalleryImages([]));
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
@@ -120,7 +124,7 @@ const Dashboard = () => {
             ? Array(4)
               .fill(0)
               .map((_, i) => <Skeleton key={i} className="h-[300px]" />)
-            : newArrivals.products?.map((product: any) => <ProductCard key={product.id} {...product} />)}
+            : (newArrivals.products || []).map((product: any) => <ProductCard key={product.id} {...product} />)}
         </div>
         <div className="text-center mt-8">
           <Button variant="outline" size="lg">
@@ -138,7 +142,7 @@ const Dashboard = () => {
             ? Array(3)
               .fill(0)
               .map((_, i) => <Skeleton key={i} className="h-[200px]" />)
-            : popularCategory.products?.map((product: any) => (
+            : (popularCategory.products || []).map((product: any) => (
               <Card key={product.id}>
                 <CardContent className="p-4">
                   <Image
@@ -197,60 +201,63 @@ const Dashboard = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section>
-        <h2 className="text-3xl font-bold mb-6">What Our Customers Say</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { name: "Badr Naja", comment: "Great products and fast shipping!", avatar: Badr.src },
-            { name: "Samia Naja", comment: "Excellent customer service. Highly recommended!", avatar: Samia.src },
-            { name: "Arina Mak", comment: "The quality of the items exceeded my expectations.", avatar: Arina.src },
-          ].map((testimonial, index) => {
-            const [ref, inView] = useInView({
-              triggerOnce: true,
-              threshold: 0.1,
-            })
-            return (
-              <motion.div
-                key={index}
-                ref={ref}
-                initial={{ opacity: 0, y: 20 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                <Card>
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <div className="flex items-start mb-4">
-                      <div className="mr-4 flex-shrink-0">
-                        <Image
-                          src={testimonial.avatar || "/placeholder.svg"}
-                          alt={testimonial.name}
-                          width={80}
-                          height={80}
-                          className="rounded-full w-20 h-20 object-cover"
-                        />
-                      </div>
-                      <div className="flex-grow">
-                        <p className="font-semibold">{testimonial.name}</p>
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
-                          ))}
+      {typeof window !== "undefined" && (
+        <section>
+          <h2 className="text-3xl font-bold mb-6">What Our Customers Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { name: "Badr Naja", comment: "Great products and fast shipping!", avatar: Badr.src },
+              { name: "Samia Naja", comment: "Excellent customer service. Highly recommended!", avatar: Samia.src },
+              { name: "Arina Mak", comment: "The quality of the items exceeded my expectations.", avatar: Arina.src },
+            ].map((testimonial, index) => {
+              const [ref, inView] = useInView({
+                triggerOnce: true,
+                threshold: 0.1,
+              });
+              return (
+                <motion.div
+                  key={index}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
+                >
+                  <Card>
+                    <CardContent className="p-6 flex flex-col h-full">
+                      <div className="flex items-start mb-4">
+                        <div className="mr-4 flex-shrink-0">
+                          <Image
+                            src={testimonial.avatar || "/placeholder.svg"}
+                            alt={testimonial.name}
+                            width={80}
+                            height={80}
+                            className="rounded-full w-20 h-20 object-cover"
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <p className="font-semibold">{testimonial.name}</p>
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <p className="mb-4">{`"${testimonial.comment}"`}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )
-          })}
-        </div>
-      </section>
+                      <p className="mb-4">{`"${testimonial.comment}"`}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Instagram-style Gallery */}
       <section>
         <h2 className="text-3xl font-bold mb-6">Shop Our Instagram</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {galleryImages.map((img, index) => (
+          {galleryImages?.map((img, index) => (
             <div key={index} className="relative aspect-square rounded-lg overflow-hidden group">
               <Image src={img || "/placeholder.svg"} alt={`Gallery ${index + 1}`} layout="fill" objectFit="cover" />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -269,8 +276,7 @@ const Dashboard = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
-
+export default Dashboard;

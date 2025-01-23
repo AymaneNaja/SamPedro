@@ -1,28 +1,37 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/auth"
-import prisma from "@/lib/prisma"
+import { type NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/auth";
+import prisma from "@/lib/prisma";
+
+interface Session {
+    user?: {
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+        id?: string;
+    };
+}
 
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions)
+    const session: Session | null = await getServerSession(authOptions);
+
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
         const cartItems = await prisma.cart.findMany({
             where: { userId: session.user.id },
-
-        })
-        return NextResponse.json(cartItems)
+        });
+        return NextResponse.json(cartItems);
     } catch (error) {
-        console.error("Error fetching cart items:", error)
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+        console.error("Error fetching cart items:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
 
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
+    const session: Session | null = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -74,9 +83,8 @@ export async function POST(req: NextRequest) {
 
 // Update the quantity of a cart item
 export async function PUT(req: NextRequest) {
-    const session = await getServerSession(authOptions);
+    const session: Session | null = await getServerSession(authOptions);
 
-    // Validate the session
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -106,25 +114,25 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-    const session = await getServerSession(authOptions)
+    const session: Session | null = await getServerSession(authOptions);
+
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = req.nextUrl.searchParams.get("id")
+    const id = req.nextUrl.searchParams.get("id");
 
     if (!id) {
-        return NextResponse.json({ error: "Cart item ID is required" }, { status: 400 })
+        return NextResponse.json({ error: "Cart item ID is required" }, { status: 400 });
     }
 
     try {
         await prisma.cart.delete({
             where: { id, userId: session.user.id },
-        })
-        return NextResponse.json({ message: "Cart item deleted successfully" }, { status: 200 })
+        });
+        return NextResponse.json({ message: "Cart item deleted successfully" }, { status: 200 });
     } catch (error) {
-        console.error("Error deleting cart item:", error)
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+        console.error("Error deleting cart item:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
-

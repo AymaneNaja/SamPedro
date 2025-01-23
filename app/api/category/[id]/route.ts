@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const BASE_URL = 'https://dummyjson.com/products/category/'
 
-export async function GET(req, { params }) {
+export async function GET(req: NextRequest, { params }) {
   const id = params?.id;
   try {
     if (!id) {

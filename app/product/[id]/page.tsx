@@ -2,9 +2,9 @@ import ProductPage from '@/components/product/ProductPage'
 import React from 'react'
 
 
-function page({ params }: { params: { id: string } }) {
+function page() {
   return (
-    <ProductPage id={params.id} />
+    <ProductPage />
   )
 }
 
