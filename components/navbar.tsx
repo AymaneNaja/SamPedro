@@ -66,8 +66,8 @@ const Navbar = () => {
   }, [pathname])
 
   const navItems = [
-    { name: "Home", href: "/" },
     { name: "Products", href: "/products" },
+    { name: "Categories", href: "/categories" },
     { name: "About", href: "/about" },
   ]
 
@@ -254,37 +254,16 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-1">
+          <div className={`hidden md:flex items-center space-x-1  ${playfair.className} `}>
             {navItems.map((item) => (
               <Link key={item.name} href={item.href}>
-                <Button variant="ghost" className="relative group text-lg">
+                <Button variant="ghost" className="relative text-xl font-semibold group ">
                   {item.name}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                 </Button>
               </Link>
             ))}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative group text-lg">
-                  Categories
-                  <ChevronDown className="ml-1 h-4 w-4" />
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {categories?.map((category: { name: string; image: string }) => {
-                  const Icon = categoryIcons[category.name] || categoryIcons.default
-                  return (
-                    <DropdownMenuItem key={category.name} asChild>
-                      <Link href={`/categories/${category.name}`} className="flex items-center space-x-2">
-                        <Icon className="h-4 w-4" />
-                        <span className="capitalize">{category.name.replace("-", " ")}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+
           </div>
 
           <div className="flex items-center space-x-4">
