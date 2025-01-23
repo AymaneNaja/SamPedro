@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "about": "About",
+    "cart": "Cart",
+    "favorites": "Favorites",
+    "profile": "Profile"
+  },
+  "footer": {
+    "about": "About Us",
+    "customerService": "Customer Service",
+    "quickLinks": "Quick Links",
+    "connect": "Connect With Us"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "description": "Description",
+    "reviews": "Reviews"
+  }
+}
+
