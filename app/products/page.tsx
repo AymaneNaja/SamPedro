@@ -76,7 +76,7 @@ export default function ProductsPage() {
                         <SelectItem value="all">All Categories</SelectItem>
                         {categories &&
                             categories.map((category: string, index: number) => (
-                                <SelectItem key={index} value={category}>
+                                <SelectItem key={index} value={category.name}>
                                     {category.name}
                                 </SelectItem>
                             ))}
@@ -106,7 +106,7 @@ export default function ProductsPage() {
                     </motion.p>
                 ) : filteredProducts.length > 0 ? (
                     <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                         initial="hidden"
                         animate="visible"
                         variants={{
@@ -115,6 +115,7 @@ export default function ProductsPage() {
                     >
                         {filteredProducts.map((product, index) => (
                             <motion.div
+
                                 key={product.id}
                                 variants={{
                                     hidden: { opacity: 0, y: 20 },
@@ -138,11 +139,11 @@ export default function ProductsPage() {
             </AnimatePresence>
 
             {(isLoading || isFetching) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
                     {Array(6)
                         .fill(0)
                         .map((_, index) => (
-                            <Skeleton key={index} className="h-[400px] " />
+                            <Skeleton key={index} className="h-[300px] lg:h-[350px] " />
                         ))}
                 </div>
             )}

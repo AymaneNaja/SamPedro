@@ -192,7 +192,7 @@ export default function CartPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-2">
             {[...Array(3)].map((_, index) => (
               <Skeleton key={index} className="h-[100px] w-full mb-4" />
@@ -224,7 +224,7 @@ export default function CartPage() {
     >
       <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
       {cartItems && cartItems.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-2">
             <AnimatePresence>
               {cartItems.map((item) => (

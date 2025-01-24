@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
-import { Moon, Sun, ShoppingCart, Menu, Search, Heart, User, ChevronDown, LogOut, ChevronRight } from "lucide-react"
+import { Moon, Sun, ShoppingCart, Menu, Search, Heart, User, ChevronDown, LogOut, ChevronRight, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,7 @@ const Navbar = () => {
   const [isSignInVisible, setIsSignInVisible] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const { data: cartItems } = useGetCartQuery(session?.user?.id, { skip: !session?.user?.id })
   const { data: favorites } = useGetFavoritesQuery(session?.user?.id, { skip: !session?.user?.id })
@@ -137,7 +138,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
                   <Menu className="h-5 w-5" />
@@ -146,21 +147,25 @@ const Navbar = () => {
               <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0">
                 <ScrollArea className="h-full">
                   <div className="p-6 space-y-6">
-                    <Link href="/" className="flex items-center space-x-2" onClick={() => setIsSidebarOpen(false)}>
-                      <motion.span
-                        className={`${playfair.className} text-3xl font-bold text-primary`}
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        SamPedro
-                      </motion.span>
-                    </Link>
+                    <div className="flex items-center">
+                      {" "}
+                      {/* Updated line */}
+                      <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+                        <motion.span
+                          className={`${playfair.className} text-3xl font-bold text-primary`}
+                          initial={{ opacity: 0, y: -20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          SamPedro
+                        </motion.span>
+                      </Link>
+                    </div>
 
                     <div className="space-y-2">
                       {navItems.map((item) => (
                         <Button key={item.name} variant="ghost" className="w-full justify-start text-lg" asChild>
-                          <Link href={item.href} onClick={() => setIsSidebarOpen(false)}>
+                          <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
                             {item.name}
                           </Link>
                         </Button>
@@ -186,7 +191,7 @@ const Navbar = () => {
                                     <Link
                                       href={`/categories/${category.name}`}
                                       className="flex items-center space-x-2"
-                                      onClick={() => setIsSidebarOpen(false)}
+                                      onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                       <Icon className="h-4 w-4" />
                                       <span className="capitalize">{category.name.replace("-", " ")}</span>
@@ -199,6 +204,17 @@ const Navbar = () => {
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
+                    <div className="pt-4 border-t">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                        className="w-full justify-start"
+                      >
+                        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        <span className="ml-2">Toggle theme</span>
+                      </Button>
+                    </div>
 
                     {status === "authenticated" && (
                       <div className="pt-4 border-t">
@@ -206,7 +222,7 @@ const Navbar = () => {
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
                             <AvatarFallback>
-                              {session?.user?.name ? session.user.name[0].toUpperCase() : "U"}
+                              {session?.user?.name ? session?.user?.name[0].toUpperCase() : "U"}
                             </AvatarFallback>
                           </Avatar>
                           <div>
@@ -231,7 +247,7 @@ const Navbar = () => {
                               <DialogTitle>Sign In</DialogTitle>
                               <DialogDescription>Sign in to your account to access all features.</DialogDescription>
                             </DialogHeader>
-                            <SignInForm onClose={() => setIsSidebarOpen(false)} />
+                            <SignInForm onClose={() => setIsMobileMenuOpen(false)} />
                           </DialogContent>
                         </Dialog>
                       </div>
@@ -246,7 +262,7 @@ const Navbar = () => {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className={`${playfair.className} text-3xl font-bold text-primary`}
+                  className={`${playfair.className} text-2xl md:text-3xl font-bold text-primary`}
                 >
                   SamPedro
                 </motion.span>
@@ -263,10 +279,9 @@ const Navbar = () => {
                 </Button>
               </Link>
             ))}
-
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <Button variant="ghost" size="icon" onClick={() => router.push("/search")} className="hidden md:flex">
               <Search className="h-5 w-5" />
             </Button>
@@ -293,20 +308,16 @@ const Navbar = () => {
               </Button>
             </Link>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="hidden md:flex"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
 
             <div className="hidden md:block">
               {status === "authenticated" ? (

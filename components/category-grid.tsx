@@ -26,7 +26,7 @@ const toBase64 = (str: string) =>
     typeof window === "undefined" ? Buffer.from(str).toString("base64") : window.btoa(str)
 
 export function CategoryGrid() {
-    const { data: categories, isLoading, error } = useFetchCategoriesQuery('')
+    const { data: categories, isLoading, error } = useFetchCategoriesQuery("")
     const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
 
     useEffect(() => {
@@ -61,9 +61,9 @@ export function CategoryGrid() {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             <AnimatePresence>
-                {categories?.map((category: string, index: number) => (
+                {categories?.map((category: { name: string, image: string }, index: number) => (
                     <motion.div
                         key={index}
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -84,7 +84,7 @@ export function CategoryGrid() {
                                     <div className="relative aspect-square">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 opacity-75" />
                                         <Image
-                                            src={category.image}
+                                            src={category.image || "/placeholder.svg"}
                                             alt={category}
                                             layout="fill"
                                             objectFit="cover"
@@ -94,7 +94,7 @@ export function CategoryGrid() {
                                         />
                                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity duration-300 opacity-100 hover:opacity-0">
                                             <motion.h2
-                                                className="text-white text-2xl font-bold text-center px-4 drop-shadow-lg"
+                                                className="text-white text-lg sm:text-xl md:text-2xl font-bold text-center px-2 sm:px-4 drop-shadow-lg"
                                                 initial={{ y: 20, opacity: 0 }}
                                                 animate={{ y: 0, opacity: 1 }}
                                                 transition={{ delay: 0.2 }}

@@ -23,6 +23,7 @@ interface ProductCardProps {
   stock: number
   brand: string
   category: string
+
   thumbnail: string
   tags: string[]
 }
