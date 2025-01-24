@@ -115,7 +115,7 @@ export function ProductCard({
 
   return (
     <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
-      <Card className="overflow-hidden h-full flex flex-col">
+      <Card className="overflow-hidden h-full flex flex-col w-full sm:w-auto">
         <CardContent className="p-0 relative">
           <Link href={`/product/${id}`} className="block group">
             <div className="relative aspect-square">

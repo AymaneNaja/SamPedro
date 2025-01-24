@@ -158,7 +158,7 @@ const FavoritesPage = () => {
       ) : (
         <AnimatePresence>
           <motion.div
-            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-1 gap-y-2 sm:gap-6"
             initial="hidden"
             animate="visible"
             variants={{
