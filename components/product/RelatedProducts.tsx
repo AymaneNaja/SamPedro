@@ -30,7 +30,7 @@ export function RelatedProducts({ category }: { category: string }) {
       transition={{ duration: 0.5 }}
     >
       <h2 className="text-2xl font-bold mb-4">Related Products</h2>
-      <div className="ggrid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-1 gap-y-2 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-1 gap-y-2 sm:gap-6">
         {data.products.map((product, index) => (
           <motion.div
             key={product.id}
