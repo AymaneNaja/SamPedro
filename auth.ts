@@ -48,11 +48,6 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            authorization: {
-                params: {
-                    scope: "email profile",
-                },
-            },
         }),
         CredentialsProvider({
             name: "Credentials",
@@ -100,10 +95,6 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async signIn({ user, account, profile }) {
-            console.log("User signed in:", user.email);
-            return true;
-        },
         async session({ session, token }) {
             return {
                 ...session,

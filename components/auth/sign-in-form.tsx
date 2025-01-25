@@ -51,29 +51,6 @@ export function SignInForm() {
     }
 
 
-    async function handleOAuthSignIn(event: React.FormEvent<HTMLFormElement>, provider: "github" | "google") {
-        event.preventDefault();
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const result = await signIn(provider, { callbackUrl: "/", redirect: false });
-
-            if (result?.error) {
-                console.error(`Sign-in failed with ${provider}:`, result.error);
-                setError(`Failed to sign in with ${provider}. Please try again.`);
-            } else if (result?.url) {
-                // Redirect manually if `redirect: false` is set
-                window.location.href = result.url;
-            }
-        } catch (error) {
-            console.error(`Unexpected sign-in error with ${provider}:`, error);
-            setError("An unexpected error occurred. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
 
 
     return (
@@ -134,7 +111,10 @@ export function SignInForm() {
                     variant="outline"
                     type="button"
                     disabled={isLoading}
-                    onClick={() => handleOAuthSignIn(e, "github")}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        signIn("github")
+                    }}
                 >
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -147,7 +127,10 @@ export function SignInForm() {
                     variant="outline"
                     type="button"
                     disabled={isLoading}
-                    onClick={() => handleOAuthSignIn(e, "google")}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        signIn("google")
+                    }}
                 >
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
