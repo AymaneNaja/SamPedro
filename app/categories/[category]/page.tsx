@@ -79,7 +79,7 @@ const CategoryPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 <div className="relative h-64 md:h-80 rounded-xl overflow-hidden mb-8">
                     {categoryImage ? (
-                        <Image src={categoryImage || "/placeholder.svg"} alt={category} layout="fill" objectFit="cover" />
+                        <Image src={categoryImage || "/placeholder.svg"} alt={category} layout="fill" objectFit="cover" priority />
                     ) : (
                         <Skeleton className="w-full h-full" />
                     )}

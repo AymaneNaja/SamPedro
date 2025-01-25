@@ -274,7 +274,7 @@ const Dashboard = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-end p-4 transition-opacity duration-300 group-hover:bg-opacity-50">
                     <category.icon className="h-8 w-8 text-white mb-2" />
                     <h3 className="text-lg font-semibold text-white mb-2">{category.name}</h3>
-                    <Button variant="secondary" size="sm" className="self-start group" onClick={() => router.replace(category.query)}>
+                    <Button variant="secondary" size="sm" className="self-start group" onClick={() => router.replace(`/categories/${category.query}`)}>
                       Explore
                       <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Button>

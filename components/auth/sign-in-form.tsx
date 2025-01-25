@@ -1,57 +1,54 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/icons";
-import { Playfair_Display } from "next/font/google";
+import { useState } from "react"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Icons } from "@/components/icons"
+import { Playfair_Display } from "next/font/google"
 
-const playfair = Playfair_Display({ subsets: ["latin"] });
+const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export function SignInForm() {
-    const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const router = useRouter()
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
 
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setIsLoading(true);
-        setError(null);
+        event.preventDefault()
+        setIsLoading(true)
+        setError(null)
 
         try {
             const result = await signIn("credentials", {
                 redirect: false,
                 email,
                 password,
-            });
+            })
 
             if (!result) {
-                setError("No response from server. Please try again later.");
+                setError("No response from server. Please try again later.")
             } else if (result.ok && !result.error) {
                 // Successful sign-in
-                router.push("/");
-                router.refresh();
+                router.push("/")
+                router.refresh()
             } else if (result.error) {
                 // Specific error from the sign-in response
-                setError(result.error || "Invalid email or password");
+                setError(result.error || "Invalid email or password")
             }
         } catch (err) {
             // Catch unexpected errors
-            console.error("Unexpected error during sign-in:", err);
-            setError("An unexpected error occurred. Please try again.");
+            console.error("Unexpected error during sign-in:", err)
+            setError("An unexpected error occurred. Please try again.")
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
     }
-
-
-
 
     return (
         <div className="grid gap-6 p-2 md:p-0 mt-4 md:mt-0">
@@ -111,10 +108,7 @@ export function SignInForm() {
                     variant="outline"
                     type="button"
                     disabled={isLoading}
-                    onClick={(e) => {
-                        e.preventDefault()
-                        signIn("github")
-                    }}
+                    onClick={() => signIn("github", { callbackUrl: "/" })}
                 >
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -127,10 +121,7 @@ export function SignInForm() {
                     variant="outline"
                     type="button"
                     disabled={isLoading}
-                    onClick={(e) => {
-                        e.preventDefault()
-                        signIn("google")
-                    }}
+                    onClick={() => signIn("google", { callbackUrl: "/" })}
                 >
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -141,5 +132,6 @@ export function SignInForm() {
                 </Button>
             </div>
         </div>
-    );
+    )
 }
+
