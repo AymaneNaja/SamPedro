@@ -63,27 +63,38 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 try {
                     if (!credentials?.email || !credentials?.password) {
-                        throw new Error("Email and password are required.");
+                        console.error("Email and password are required.");
+                        return null; // Return null to indicate authentication failure
                     }
 
+                    console.log("Fetching user from database...");
                     const user = await prisma.user.findUnique({
                         where: { email: credentials.email },
                         select: { id: true, email: true, name: true, password: true },
                     });
 
-                    if (!user || !user.password) {
-                        throw new Error("Invalid email or password.");
+                    if (!user) {
+                        console.error("User not found for email:", credentials.email);
+                        return null; // Return null to indicate authentication failure
                     }
 
+                    if (!user.password) {
+                        console.error("No password found for user:", user.email);
+                        return null; // Return null to indicate authentication failure
+                    }
+
+                    console.log("Verifying password...");
                     const isPasswordValid = await verify(user.password, credentials.password);
                     if (!isPasswordValid) {
-                        throw new Error("Invalid email or password.");
+                        console.error("Invalid password for user:", user.email);
+                        return null; // Return null to indicate authentication failure
                     }
 
-                    return user;
+                    console.log("User authenticated successfully:", user.email);
+                    return user; // Return the user object on successful authentication
                 } catch (error) {
                     console.error("Authorization error:", error);
-                    throw new Error("An error occurred during login. Please try again.");
+                    throw new Error("An error occurred during login. Please try again."); // Throw an error for unexpected issues
                 }
             },
         }),

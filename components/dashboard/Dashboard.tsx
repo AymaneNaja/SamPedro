@@ -44,14 +44,14 @@ import { FallbackImage } from "@/components/ui/fallback-image"
 const UNSPLASH_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY
 
 const FALLBACK_IMAGES = {
-  hero: ["/images/placeholder1.jpg", "/images/placeholder2.jpg", "/images/placeholder3.jpg"],
+  hero: ["https://images.unsplash.com/photo-1601597565151-70c4020dc0e1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?q=80&w=1969&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1485518882345-15568b007407?q=80&w=1942&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",],
   categories: {
-    Electronics: "/images/placeholder-electronics.jpg",
-    Fashion: "/images/placeholder-fashion.jpg",
-    "Home & Garden": "/images/placeholder-home.jpg",
-    Beauty: "/images/placeholder-beauty.jpg",
+    Electronics: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGVsZWN0cm9uaWNzfGVufDB8fDB8fHww",
+    Fashion: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZmFzaGlvbnxlbnwwfHwwfHx8MA%3D%3D",
+    "Home & Garden": "https://plus.unsplash.com/premium_photo-1678836292816-fdf0ac484cf1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aG9tZSUyMGFuZCUyMGdhcmRlbnxlbnwwfHwwfHx8MA%3D%3D",
+    Beauty: "https://plus.unsplash.com/premium_photo-1684407616442-8d5a1b7c978e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8YmVhdXR5fGVufDB8fDB8fHww",
   },
-  flashSale: "/images/placeholder-flash-sale.jpg",
+  flashSale: "https://images.unsplash.com/photo-1521404567986-a2c39cde0c31?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTUxfHxzYWxlfGVufDB8fDB8fHww",
 }
 
 const Dashboard = () => {
@@ -65,10 +65,10 @@ const Dashboard = () => {
   const [isLoadingCategoryImages, setIsLoadingCategoryImages] = useState(true)
 
   const categories = [
-    { name: "Electronics", icon: Smartphone, query: "electronics" },
-    { name: "Fashion", icon: Shirt, query: "fashion clothing" },
-    { name: "Home & Garden", icon: Home, query: "home decor" },
-    { name: "Beauty", icon: Sparkles, query: "beauty products" },
+    { name: "Electronics", icon: Smartphone, query: "laptops" },
+    { name: "Fashion", icon: Shirt, query: "womens-dresses" },
+    { name: "Home & Garden", icon: Home, query: "home-decoration" },
+    { name: "Beauty", icon: Sparkles, query: "beauty" },
   ]
 
   useEffect(() => {
@@ -184,7 +184,7 @@ const Dashboard = () => {
             autoplay={{ delay: 5000 }}
             pagination={{ clickable: true }}
             loop={true}
-            className="h-[50vh] md:h-[70vh]"
+            className="h-[60vh] md:h-[70vh]"
           >
             {heroImages.map((image, index) => (
               <SwiperSlide key={index}>
@@ -232,7 +232,7 @@ const Dashboard = () => {
       </section>
 
       {/* Features Section */}
-      <section className="grid md:grid-cols-3 gap-6">
+      <section className="hidden md:grid md:grid-cols-3 gap-6">
         {[
           { icon: Truck, title: "Free Shipping", description: "On orders over $50" },
           { icon: RefreshCcw, title: "Easy Returns", description: "30-day return policy" },
@@ -274,7 +274,7 @@ const Dashboard = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-end p-4 transition-opacity duration-300 group-hover:bg-opacity-50">
                     <category.icon className="h-8 w-8 text-white mb-2" />
                     <h3 className="text-lg font-semibold text-white mb-2">{category.name}</h3>
-                    <Button variant="secondary" size="sm" className="self-start group">
+                    <Button variant="secondary" size="sm" className="self-start group" onClick={() => router.replace(category.query)}>
                       Explore
                       <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Button>

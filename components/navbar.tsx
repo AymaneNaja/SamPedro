@@ -238,18 +238,7 @@ const Navbar = () => {
 
                     {!session && (
                       <div className="mt-4">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button className="w-full">Sign In</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Sign In</DialogTitle>
-                              <DialogDescription>Sign in to your account to access all features.</DialogDescription>
-                            </DialogHeader>
-                            <SignInForm onClose={() => setIsMobileMenuOpen(false)} />
-                          </DialogContent>
-                        </Dialog>
+                        <Button variant="secondary" className={' bg-neutral-100 dark:bg-neutral-800 w-full p-2 '} onClick={() => router.replace('/sign-in ')}>Sign In</Button>
                       </div>
                     )}
                   </div>
@@ -323,18 +312,10 @@ const Navbar = () => {
               {status === "authenticated" ? (
                 <UserMenu />
               ) : (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="secondary">Sign In</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Sign In</DialogTitle>
-                      <DialogDescription>Sign in to your account to access all features.</DialogDescription>
-                    </DialogHeader>
-                    <SignInForm onClose={() => setIsSignInVisible(false)} />
-                  </DialogContent>
-                </Dialog>
+                <Link href={'/sign-in'}>
+                  <Button variant="secondary" className="bg-neutral-100 dark:bg-neutral-800  ">
+                    Sign In
+                  </Button>                </Link>
               )}
             </div>
           </div>
