@@ -218,7 +218,7 @@ const Dashboard = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.6 }}
                     >
-                      <Button size="lg" className="bg-primary hover:bg-primary/90">
+                      <Button size="lg" className="bg-primary hover:bg-primary/90" onClick={() => router.replace('/categories')}>
                         Shop Now
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
