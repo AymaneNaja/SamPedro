@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 const shimmer = (w: number, h: number) => `
 <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -26,6 +27,7 @@ const toBase64 = (str: string) =>
     typeof window === "undefined" ? Buffer.from(str).toString("base64") : window.btoa(str)
 
 export function CategoryGrid() {
+    const router = useRouter()
     const { data: categories, isLoading, error } = useFetchCategoriesQuery("")
     const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
 
@@ -78,35 +80,33 @@ export function CategoryGrid() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        <Link href={`/categories/${category.name}`}>
-                            <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                                <CardContent className="p-0">
-                                    <div className="relative aspect-square">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 opacity-75" />
-                                        <Image
-                                            priority
-                                            src={category.image || "/placeholder.svg"}
-                                            alt={category.name}
-                                            layout="fill"
-                                            objectFit="cover"
-                                            className="transition-all duration-300 filter grayscale hover:grayscale-0"
-                                            placeholder="blur"
-                                            blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
-                                        />
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity duration-300 opacity-100 hover:opacity-0">
-                                            <motion.h2
-                                                className="text-white text-lg sm:text-xl md:text-2xl font-bold text-center px-2 sm:px-4 drop-shadow-lg"
-                                                initial={{ y: 20, opacity: 0 }}
-                                                animate={{ y: 0, opacity: 1 }}
-                                                transition={{ delay: 0.2 }}
-                                            >
-                                                {category.name}
-                                            </motion.h2>
-                                        </div>
+                        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer" onClick={() => router.replace(`/categories/${category.name}`)}>
+                            <CardContent className="p-0">
+                                <div className="relative aspect-square">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 opacity-75" />
+                                    <Image
+                                        priority
+                                        src={category.image || "/placeholder.svg"}
+                                        alt={category.name}
+                                        layout="fill"
+                                        objectFit="cover"
+                                        className="transition-all duration-300 filter grayscale hover:grayscale-0"
+                                        placeholder="blur"
+                                        blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity duration-300 opacity-100 hover:opacity-0">
+                                        <motion.h2
+                                            className="text-white text-lg sm:text-xl md:text-2xl font-bold text-center px-2 sm:px-4 drop-shadow-lg"
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            {category.name}
+                                        </motion.h2>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </motion.div>
                 ))}
             </AnimatePresence>
