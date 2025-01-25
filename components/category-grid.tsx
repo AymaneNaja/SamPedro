@@ -61,7 +61,7 @@ export function CategoryGrid() {
     }
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 md:gap-6">
             <AnimatePresence>
                 {categories?.map((category: { name: string, image: string }, index: number) => (
                     <motion.div
@@ -84,8 +84,9 @@ export function CategoryGrid() {
                                     <div className="relative aspect-square">
                                         <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 opacity-75" />
                                         <Image
+                                            priority
                                             src={category.image || "/placeholder.svg"}
-                                            alt={category}
+                                            alt={category.name}
                                             layout="fill"
                                             objectFit="cover"
                                             className="transition-all duration-300 filter grayscale hover:grayscale-0"

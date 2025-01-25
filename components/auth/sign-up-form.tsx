@@ -58,7 +58,7 @@ export function SignUpForm() {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 p-2 md:p-0 mt-4 md:mt-0">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className={`${playfair.className} text-3xl font-semibold tracking-tight`}>SamPedro</h1>
         <p className="text-sm text-muted-foreground">Create an account to get started</p>

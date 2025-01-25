@@ -161,7 +161,7 @@ export function ProductCard({
             <div className="flex w-full justify-between items-start">
               <div>
                 <h3 className="font-semibold line-clamp-1">{title}</h3>
-                <p className="text-sm text-muted-foreground">{brand}</p>
+                <p className="text-sm text-muted-foreground font-semibold">{brand}</p>
               </div>
               <div className="flex items-center gap-1 text-sm text-yellow-500">
                 <Star className="h-4 w-4 fill-current" />
@@ -169,7 +169,7 @@ export function ProductCard({
               </div>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="md:flex flex-wrap gap-1 mt-2 hidden ">
               {tags.map((tag) => (
                 <Badge key={tag} variant="outline" className="text-xs">
                   {tag}

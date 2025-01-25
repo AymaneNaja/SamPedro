@@ -1,15 +1,41 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { NextAuthOptions } from "next-auth"
-import prisma from "@/lib/prisma"
-import { compare } from "bcrypt"
-import CredentialsProvider from "next-auth/providers/credentials"
-import GitHubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { NextAuthOptions } from "next-auth";
+import prisma from "@/lib/prisma";
+import { verify } from "argon2";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import rateLimit from "express-rate-limit";
+import { NextApiRequest, NextApiResponse } from "next";
+import NextAuth from "next-auth";
+
+// Rate limiter configuration
+const limiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5, // Max 5 requests per windowMs
+    message: "Too many requests. Please try again later.",
+});
+
+// Apply rate limiting middleware
+const applyRateLimit = (req: NextApiRequest, res: NextApiResponse) => {
+    return new Promise((resolve, reject) => {
+        limiter(req as any, res as any, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+};
 
 export const authOptions: NextAuthOptions = {
+    debug: process.env.NODE_ENV === "development",
     adapter: PrismaAdapter(prisma),
     session: {
-        strategy: "jwt",
+        strategy: "database",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        updateAge: 24 * 60 * 60, // 24 hours
     },
     pages: {
         signIn: "/sign-in",
@@ -22,6 +48,11 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            authorization: {
+                params: {
+                    scope: "email profile",
+                },
+            },
         }),
         CredentialsProvider({
             name: "Credentials",
@@ -30,55 +61,80 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    return null
-                }
+                try {
+                    if (!credentials?.email || !credentials?.password) {
+                        throw new Error("Email and password are required.");
+                    }
 
-                const user = await prisma.user.findUnique({
-                    where: {
-                        email: credentials.email,
-                    },
-                })
+                    const user = await prisma.user.findUnique({
+                        where: { email: credentials.email },
+                        select: { id: true, email: true, name: true, password: true },
+                    });
 
-                if (!user || !user.password) {
-                    return null
-                }
+                    if (!user || !user.password) {
+                        throw new Error("Invalid email or password.");
+                    }
 
-                const isPasswordValid = await compare(credentials.password, user.password)
+                    const isPasswordValid = await verify(user.password, credentials.password);
+                    if (!isPasswordValid) {
+                        throw new Error("Invalid email or password.");
+                    }
 
-                if (!isPasswordValid) {
-                    return null
-                }
-
-                return {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
+                    return user;
+                } catch (error) {
+                    console.error("Authorization error:", error);
+                    throw new Error("An error occurred during login. Please try again.");
                 }
             },
         }),
     ],
     callbacks: {
-        session: ({ session, token }) => {
-
+        async signIn({ user, account, profile }) {
+            console.log("User signed in:", user.email);
+            return true;
+        },
+        async session({ session, token }) {
             return {
                 ...session,
                 user: {
                     ...session.user,
                     id: token.id,
                 },
-            }
+            };
         },
-        jwt: ({ token, user }) => {
+        async jwt({ token, user }) {
             if (user) {
                 return {
                     ...token,
                     id: user.id,
-                }
+                };
             }
-            return token
+            return token;
+        },
+    },
+    cookies: {
+        sessionToken: {
+            name: "__Secure-next-auth.session-token",
+            options: {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+            },
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
-}
+};
 
+export default async function auth(req: NextApiRequest, res: NextApiResponse) {
+    // Apply rate limiting to the credentials provider
+    if (req.method === "POST" && req.query.nextauth?.includes("callback") && req.query.nextauth?.includes("credentials")) {
+        try {
+            await applyRateLimit(req, res);
+        } catch (error) {
+            return res.status(429).json({ message: "Too many requests. Please try again later." });
+        }
+    }
+
+    return NextAuth(req, res, authOptions);
+}

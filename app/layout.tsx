@@ -27,7 +27,7 @@ export default function RootLayout({
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
               <Sidebar />
-              <main className="flex-1 overflow-y-auto min-h-screen max-w-screen-xl mx-auto">
+              <main className="flex-1 overflow-y-auto min-h-screen max-w-screen-xl mx-auto p-2 ">
                 {children}
               </main>
             </div>

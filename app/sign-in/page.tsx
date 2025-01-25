@@ -1,54 +1,82 @@
-import { Metadata } from "next"
-import Image from "next/image"
+"use client"
+
+
 import Link from "next/link"
+import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+
 import { SignInForm } from "@/components/auth/sign-in-form"
-import { Playfair_Display } from 'next/font/google'
+import { Playfair_Display } from "next/font/google"
+import { FallbackImage } from "@/components/ui/fallback-image"
 
-export const metadata: Metadata = {
-    title: "Sign In | SamPedro",
-    description: "Sign in to your SamPedro account.",
-}
-const playfair = Playfair_Display({ subsets: ['latin'] })
+const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export default function SignInPage() {
-    return (
-        <div className="container relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+    const [backgroundImage, setBackgroundImage] = useState("")
 
-            <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                <div className="absolute inset-0 bg-zinc-900  rounded-md bg-cover" style={{ backgroundImage: `url(${'https://images.unsplash.com/photo-1495462911434-be47104d70fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGZhc2hpb24lMjBtb25vY2hyb21lfGVufDB8fDB8fHww'})` }} />
-                <div className="relative z-20 flex items-center text-3xl font-medium" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    SamPedro
+    useEffect(() => {
+        fetch(
+            `https://api.unsplash.com/photos/random?query=fashion&orientation=portrait&client_id=${process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY}`,
+        )
+            .then((res) => res.json())
+            .then((data) => {
+                setBackgroundImage(data.urls.regular)
+            })
+            .catch((err) => {
+                console.error("Error fetching Unsplash image:", err)
+                setBackgroundImage("/placeholder.svg")
+            })
+    }, [])
+
+    return (
+        <div className="container relative min-h-screen flex flex-col lg:flex-row items-center justify-center p-4 lg:p-0 mx-auto">
+            <motion.div
+                className="w-full lg:w-1/2 h-full lg:min-h-screen hidden lg:flex flex-col bg-muted p-6 lg:p-10 text-white order-2 lg:order-1"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <div className="relative h-64 lg:h-full mb-6 lg:mb-0 overflow-hidden rounded-lg">
+                    <FallbackImage
+                        src={backgroundImage}
+                        fallbackSrc="/placeholder.svg"
+                        alt="Fashion model"
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                        <h1 className={`${playfair.className} text-4xl lg:text-6xl font-bold text-white text-center`}>SamPedro</h1>
+                    </div>
                 </div>
-                <div className="relative z-20 mt-auto">
+                <div className="mt-6 lg:mt-auto">
                     <blockquote className="space-y-2">
-                        <p className="text-xl " style={{ fontFamily: "'Playfair Display', serif" }}>
-                            &ldquo; SamPedro has streamlined our workflow and boosted our productivity. {`It's`} an essential tool for our {`team's `}success.&rdquo;
+                        <p className={`${playfair.className} text-lg lg:text-xl italic`}>
+                            &ldquo;SamPedro has revolutionized our shopping experience. The curated collections and seamless interface
+                            make fashion accessible and enjoyable.&rdquo;
                         </p>
-                        <footer className="text-sm">Samia Naja, Team Lead</footer>
+                        <footer className="text-sm">Samia Naja, Fashion Enthusiast</footer>
                     </blockquote>
                 </div>
-            </div>
-            <div className="lg:p-8">
-                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-                    <div className="flex flex-col space-y-2 text-center">
-
-
-                    </div>
+            </motion.div>
+            <motion.div
+                className="w-full lg:w-1/2 p-6 lg:p-12 order-1 lg:order-2"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+            >
+                <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-md">
                     <SignInForm />
                     <p className="px-8 text-center text-sm text-muted-foreground">
                         Don't have an account?{" "}
-                        <Link
-                            href="sign-up"
-                            className="underline underline-offset-4 hover:text-primary"
-                        >
+                        <Link href="/sign-up" className="underline underline-offset-4 hover:text-primary">
                             Sign up
                         </Link>
                     </p>
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 }
+

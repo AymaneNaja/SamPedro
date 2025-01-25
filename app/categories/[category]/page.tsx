@@ -75,7 +75,7 @@ const CategoryPage = () => {
         : []
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-1.5 py-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 <div className="relative h-64 md:h-80 rounded-xl overflow-hidden mb-8">
                     {categoryImage ? (
@@ -94,15 +94,15 @@ const CategoryPage = () => {
                     <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
                         <h2 className="text-2xl font-semibold mb-4 sm:mb-0">Products</h2>
                         <div className="flex gap-4">
-                            <div className="flex items-center">
+                            <div className="flex items-center gap-2">
                                 <Input
                                     type="number"
                                     placeholder="Max Price"
                                     value={filterPrice}
                                     onChange={(e) => setFilterPrice(e.target.value ? Number(e.target.value) : "")}
-                                    className="w-24 mr-2"
+                                    className="w-32"
                                 />
-                                <Button variant="outline" size="icon">
+                                <Button variant="outline" size="icon" onClick={() => setFilterPrice(filterPrice)}>
                                     <Filter className="h-4 w-4" />
                                 </Button>
                             </div>

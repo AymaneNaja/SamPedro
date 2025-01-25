@@ -44,7 +44,7 @@ export function SignInForm({ onClose }: SignInFormProps) {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 w-11/12 md:w-full">
       <form onSubmit={onSubmit}>
         <div className="grid gap-2">
           <div className="grid gap-1">
