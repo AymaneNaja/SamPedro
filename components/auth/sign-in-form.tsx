@@ -51,7 +51,9 @@ export function SignInForm() {
     }
 
 
-    async function handleOAuthSignIn(provider: "github" | "google") {
+    async function handleOAuthSignIn(event: React.FormEvent<HTMLFormElement>, provider: "github" | "google") {
+        event.preventDefault();
+
         setIsLoading(true);
         setError(null);
 
@@ -132,7 +134,7 @@ export function SignInForm() {
                     variant="outline"
                     type="button"
                     disabled={isLoading}
-                    onClick={() => handleOAuthSignIn("github")}
+                    onClick={() => handleOAuthSignIn(e, "github")}
                 >
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -145,7 +147,7 @@ export function SignInForm() {
                     variant="outline"
                     type="button"
                     disabled={isLoading}
-                    onClick={() => handleOAuthSignIn("google")}
+                    onClick={() => handleOAuthSignIn(e, "google")}
                 >
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

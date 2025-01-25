@@ -32,7 +32,7 @@ export default function SignInPage() {
             >
                 <div className="relative h-64 lg:h-full mb-6 lg:mb-0 overflow-hidden rounded-lg">
                     {/* Overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center ">
                         <h1 className={`${playfair.className} text-4xl lg:text-6xl font-bold text-white text-center`}>
                             SamPedro
                         </h1>

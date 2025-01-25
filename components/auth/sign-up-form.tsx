@@ -111,7 +111,11 @@ export function SignUpForm() {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-6">
-        <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("github")}>
+        <Button variant="outline" type="button" disabled={isLoading} onClick={() => {
+          e.preventDefault()
+
+          signIn("github")
+        }}>
           {isLoading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -119,7 +123,10 @@ export function SignUpForm() {
           )}{" "}
           GitHub
         </Button>
-        <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("google")}>
+        <Button variant="outline" type="button" disabled={isLoading} onClick={(e) => {
+          e.preventDefault()
+          signIn("google")
+        }}>
           {isLoading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
