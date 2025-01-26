@@ -76,8 +76,7 @@ const CategoryPage = () => {
 
     const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
         const target = event.target as HTMLImageElement
-        target.style.background = 'linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%)'
-        target.style.color = 'transparent'
+        target.style.display = 'none' // Hide the image if it fails to load
     }
 
     return (
