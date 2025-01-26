@@ -1,12 +1,12 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import type { NextAuthOptions } from "next-auth"
-import { verify } from "argon2"
-import CredentialsProvider from "next-auth/providers/credentials"
-import GitHubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
-import { PrismaClient } from "@prisma/client"
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import type { NextAuthOptions } from "next-auth";
+import bcrypt from "bcrypt";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
@@ -33,46 +33,46 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
-                    return null
+                    return null;
                 }
 
                 const user = await prisma.user.findUnique({
                     where: { email: credentials.email },
-                })
+                });
 
                 if (!user || !user.password) {
-                    return null
+                    return null;
                 }
 
-                const isPasswordValid = await verify(user.password, credentials.password)
+                // Verify the hashed password using bcrypt
+                const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
                 if (!isPasswordValid) {
-                    return null
+                    return null;
                 }
 
                 return {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                }
+                };
             },
         }),
     ],
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.id = user.id
+                token.id = user.id;
             }
-            return token
+            return token;
         },
         async session({ session, token }) {
             if (session.user) {
-                session.user.id = token.id as string
+                session.user.id = token.id as string;
             }
-            return session
+            return session;
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
     debug: process.env.NODE_ENV !== "production",
-}
-
+};

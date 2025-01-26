@@ -19,8 +19,7 @@ export function SignInForm() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
-    async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault()
+    async function onSubmit() {
         setIsLoading(true)
         setError(null)
 
@@ -56,7 +55,10 @@ export function SignInForm() {
                 <h1 className={`${playfair.className} text-3xl font-semibold tracking-tight`}>SamPedro</h1>
                 <p className="text-sm text-muted-foreground">Enter your credentials to sign in</p>
             </div>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={(e) => {
+                e.preventDefault()
+                onSubmit()
+            }}>
                 <div className="grid gap-4">
                     <div className="grid gap-1">
                         <Label htmlFor="email">Email</Label>
