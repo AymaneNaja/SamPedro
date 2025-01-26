@@ -212,7 +212,7 @@ const CartContent = () => {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-8"
     >
-      <h1 className="text-3xl font-bold mb-8 ">Your Cart</h1>
+      <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
       {cartItems && cartItems.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">

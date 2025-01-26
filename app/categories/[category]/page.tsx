@@ -12,8 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowRight, Filter, SortAsc, SortDesc } from "lucide-react"
 import { FallbackImage } from "@/components/ui/fallback-image"
 
-const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY
-
 const CategoryPage = () => {
     const params = useParams()
     const category = params.category as string
@@ -35,44 +33,18 @@ const CategoryPage = () => {
     ])
 
     useEffect(() => {
-        const fetchCategoryImage = async () => {
-            try {
-                const response = await fetch(
-                    `https://api.unsplash.com/photos/random?query=${category}&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`,
-                )
-                const data = await response.json()
-                setCategoryImage(data.urls.regular)
-            } catch (error) {
-                console.error("Error fetching category image:", error)
-                setCategoryImage("/placeholder.svg")
-            }
-        }
-
-        fetchCategoryImage()
+        // Fallback Unsplash link without API key
+        const fallbackImageUrl = `https://source.unsplash.com/featured/?${encodeURIComponent(category)}`
+        setCategoryImage(fallbackImageUrl)
     }, [category])
 
     useEffect(() => {
-        const fetchCategoryAdImages = async () => {
-            try {
-                const adImages = await Promise.all(
-                    categoryAds.map(() =>
-                        fetch(
-                            `https://api.unsplash.com/photos/random?query=${category}&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`,
-                        ).then((res) => res.json()),
-                    ),
-                )
-                setCategoryAds((prevAds) =>
-                    prevAds.map((ad, index) => ({
-                        ...ad,
-                        image: adImages[index].urls.regular,
-                    })),
-                )
-            } catch (error) {
-                console.error("Error fetching category ad images:", error)
-            }
-        }
-
-        fetchCategoryAdImages()
+        // Fallback Unsplash links without API key for ads
+        const updatedAds = categoryAds.map((ad) => ({
+            ...ad,
+            image: `https://source.unsplash.com/featured/?${encodeURIComponent(category + "," + ad.title)}`,
+        }))
+        setCategoryAds(updatedAds)
     }, [category, categoryAds]) // Added categoryAds to dependencies
 
     const sortedAndFilteredProducts = products
