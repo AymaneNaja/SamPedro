@@ -38,7 +38,7 @@ export function SignInForm() {
                     variant: "destructive",
                 })
             } else {
-                router.push("/dashboard")
+                router.push("/")
             }
         } catch (error) {
             console.error("Sign-in error:", error)

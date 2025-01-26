@@ -5,37 +5,11 @@ import { verify } from "argon2"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GitHubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
-import rateLimit from "express-rate-limit"
-import type { NextApiRequest, NextApiResponse } from "next"
-import NextAuth from "next-auth"
-
-// Rate limiter configuration
-const limiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 5, // Max 5 requests per windowMs
-    message: "Too many requests. Please try again later.",
-})
-
-// Apply rate limiting middleware
-const applyRateLimit = (req: NextApiRequest, res: NextApiResponse) => {
-    return new Promise((resolve, reject) => {
-        limiter(req as any, res as any, (err) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(null)
-            }
-        })
-    })
-}
 
 export const authOptions: NextAuthOptions = {
-    debug: process.env.NODE_ENV === "development",
     adapter: PrismaAdapter(prisma),
     session: {
-        strategy: "database",
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        updateAge: 24 * 60 * 60, // 24 hours
+        strategy: "jwt",
     },
     pages: {
         signIn: "/sign-in",
@@ -56,92 +30,46 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                try {
-                    if (!credentials?.email || !credentials?.password) {
-                        console.error("Email and password are required.")
-                        return null // Return null to indicate authentication failure
-                    }
+                if (!credentials?.email || !credentials?.password) {
+                    return null
+                }
 
-                    console.log("Fetching user from database...")
-                    const user = await prisma.user.findUnique({
-                        where: { email: credentials.email },
-                        select: { id: true, email: true, name: true, password: true },
-                    })
+                const user = await prisma.user.findUnique({
+                    where: { email: credentials.email },
+                })
 
-                    if (!user) {
-                        console.error("User not found for email:", credentials.email)
-                        return null // Return null to indicate authentication failure
-                    }
+                if (!user || !user.password) {
+                    return null
+                }
 
-                    if (!user.password) {
-                        console.error("No password found for user:", user.email)
-                        return null // Return null to indicate authentication failure
-                    }
+                const isPasswordValid = await verify(user.password, credentials.password)
 
-                    console.log("Verifying password...")
-                    const isPasswordValid = await verify(user.password, credentials.password)
-                    if (!isPasswordValid) {
-                        console.error("Invalid password for user:", user.email)
-                        return null // Return null to indicate authentication failure
-                    }
+                if (!isPasswordValid) {
+                    return null
+                }
 
-                    console.log("User authenticated successfully:", user.email)
-                    return user // Return the user object on successful authentication
-                } catch (error) {
-                    console.error("Authorization error:", error)
-                    throw new Error("An error occurred during login. Please try again.") // Throw an error for unexpected issues
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
                 }
             },
         }),
     ],
     callbacks: {
-        async session({ session, token }) {
-            return {
-                ...session,
-                user: {
-                    ...session.user,
-                    id: token.id,
-                },
-            }
-        },
         async jwt({ token, user }) {
             if (user) {
-                return {
-                    ...token,
-                    id: user.id,
-                }
+                token.id = user.id
             }
             return token
         },
-    },
-    cookies: {
-        sessionToken: {
-            name: "__Secure-next-auth.session-token",
-            options: {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-            },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string
+            }
+            return session
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
-}
-
-export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-    // Apply rate limiting to the credentials provider
-    if (
-        req.method === "POST" &&
-        req.query.nextauth?.includes("callback") &&
-        req.query.nextauth?.includes("credentials")
-    ) {
-        try {
-            await applyRateLimit(req, res)
-        } catch (error) {
-            return res.status(429).json({ message: "Too many requests. Please try again later." })
-        }
-    }
-
-    return NextAuth(req, res, authOptions)
 }
 
