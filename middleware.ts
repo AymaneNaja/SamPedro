@@ -1,36 +1,29 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
 
-// This function can be marked `async` if using `await` inside
+const publicPaths = ["/", "/products", "/categories", "/about", "/contact", "/faq"]
+const authPaths = ["/sign-in", "/sign-up"]
+
 export async function middleware(request: NextRequest) {
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getToken({ req: request })
+    const path = request.nextUrl.pathname
+    const isAuthPage = authPaths.some((authPath) => path.startsWith(authPath))
+    const isPublicPage = publicPaths.some((publicPath) => path.startsWith(publicPath))
 
-    const isAuthPage = request.nextUrl.pathname.startsWith('/sign-in') ||
-        request.nextUrl.pathname.startsWith('/sign-up')
-
+    // Allow access to auth pages even if the user is authenticated
     if (isAuthPage) {
-        if (token) {
-            return NextResponse.redirect(new URL('/', request.url))
-        }
         return NextResponse.next()
     }
 
-    if (!token) {
-        let from = request.nextUrl.pathname;
-        if (request.nextUrl.search) {
-            from += request.nextUrl.search;
-        }
-
-        return NextResponse.redirect(
-            new URL(`/sign-in?from=${encodeURIComponent(from)}`, request.url)
-        );
+    if (!token && !isPublicPage) {
+        return NextResponse.redirect(new URL("/sign-in", request.url))
     }
 
     return NextResponse.next()
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
-    matcher: ['/dashboard/:path*', '/sign-in', '/sign-up'],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }
+

@@ -9,20 +9,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
 import { Playfair_Display } from "next/font/google"
+import { useToast } from "@/components/ui/use-toast"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export function SignUpForm() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     try {
       const response = await fetch("/api/register", {
@@ -40,25 +40,36 @@ export function SignUpForm() {
         })
 
         if (result?.error) {
-          setError("Failed to sign in after registration. Please try signing in manually.")
+          toast({
+            title: "Error",
+            description: "Failed to sign in after registration. Please try signing in manually.",
+            variant: "destructive",
+          })
         } else {
           router.push("/dashboard")
-          router.refresh()
         }
       } else {
         const data = await response.json()
-        setError(data.error || "An error occurred. Please try again.")
+        toast({
+          title: "Error",
+          description: data.error || "An error occurred. Please try again.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
       console.error("Sign-up error:", error)
-      setError("An error occurred. Please try again.")
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="grid gap-6 p-2 md:p-0 mt-4 md:mt-0">
+    <div className="grid gap-6">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className={`${playfair.className} text-3xl font-semibold tracking-tight`}>SamPedro</h1>
         <p className="text-sm text-muted-foreground">Create an account to get started</p>
@@ -95,7 +106,6 @@ export function SignUpForm() {
               required
             />
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
           <Button disabled={isLoading}>
             {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
             Sign Up
@@ -111,12 +121,7 @@ export function SignUpForm() {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-6">
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          onClick={() => signIn("github", { callbackUrl: "/" })}
-        >
+        <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("github")}>
           {isLoading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -124,12 +129,7 @@ export function SignUpForm() {
           )}{" "}
           GitHub
         </Button>
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          onClick={() => signIn("google", { callbackUrl: "/" })}
-        >
+        <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("google")}>
           {isLoading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (

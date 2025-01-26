@@ -9,20 +9,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
 import { Playfair_Display } from "next/font/google"
+import { useToast } from "@/components/ui/use-toast"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export function SignInForm() {
     const router = useRouter()
+    const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setIsLoading(true)
-        setError(null)
 
         try {
             const result = await signIn("credentials", {
@@ -31,27 +31,29 @@ export function SignInForm() {
                 password,
             })
 
-            if (!result) {
-                setError("No response from server. Please try again later.")
-            } else if (result.ok && !result.error) {
-                // Successful sign-in
-                router.push("/")
-                router.refresh()
-            } else if (result.error) {
-                // Specific error from the sign-in response
-                setError(result.error || "Invalid email or password")
+            if (result?.error) {
+                toast({
+                    title: "Error",
+                    description: "Invalid email or password",
+                    variant: "destructive",
+                })
+            } else {
+                router.push("/dashboard")
             }
-        } catch (err) {
-            // Catch unexpected errors
-            console.error("Unexpected error during sign-in:", err)
-            setError("An unexpected error occurred. Please try again.")
+        } catch (error) {
+            console.error("Sign-in error:", error)
+            toast({
+                title: "Error",
+                description: "An error occurred. Please try again.",
+                variant: "destructive",
+            })
         } finally {
             setIsLoading(false)
         }
     }
 
     return (
-        <div className="grid gap-6 p-2 md:p-0 mt-4 md:mt-0">
+        <div className="grid gap-6">
             <div className="flex flex-col space-y-2 text-center">
                 <h1 className={`${playfair.className} text-3xl font-semibold tracking-tight`}>SamPedro</h1>
                 <p className="text-sm text-muted-foreground">Enter your credentials to sign in</p>
@@ -88,7 +90,6 @@ export function SignInForm() {
                             required
                         />
                     </div>
-                    {error && <p className="text-sm text-destructive">{error}</p>}
                     <Button disabled={isLoading}>
                         {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
                         Sign In
@@ -104,12 +105,7 @@ export function SignInForm() {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-6">
-                <Button
-                    variant="outline"
-                    type="button"
-                    disabled={isLoading}
-                    onClick={() => signIn("github", { callbackUrl: "/" })}
-                >
+                <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("github")}>
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
@@ -117,12 +113,7 @@ export function SignInForm() {
                     )}{" "}
                     GitHub
                 </Button>
-                <Button
-                    variant="outline"
-                    type="button"
-                    disabled={isLoading}
-                    onClick={() => signIn("google", { callbackUrl: "/" })}
-                >
+                <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("google")}>
                     {isLoading ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
