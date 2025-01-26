@@ -10,6 +10,9 @@ export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
 
     // Allow access to NextAuth API routes and auth pages (sign-in, sign-up)
+    if (request.nextUrl.pathname.startsWith("/api/auth")) {
+        return NextResponse.next()
+    }
     if (path.startsWith("/api/auth") || path.startsWith("/sign-in") || path.startsWith("/sign-up")) {
         return NextResponse.next()
     }
@@ -29,3 +32,4 @@ export async function middleware(request: NextRequest) {
 export const config = {
     matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }
+
