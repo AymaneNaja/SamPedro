@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
@@ -19,6 +19,7 @@ import {
   useFetchSingleProductQuery,
 } from "@/redux/productsApi"
 import { useRouter } from "next/navigation"
+import { ErrorBoundary } from "react-error-boundary"
 
 const CartItem = ({ item, onUpdateCart, onRemoveItem }) => {
   const { data: product, isLoading: isProductLoading } = useFetchSingleProductQuery(item.productId)
@@ -27,7 +28,7 @@ const CartItem = ({ item, onUpdateCart, onRemoveItem }) => {
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-col space-y-4">
             <Skeleton className="h-20 w-20 rounded-md" />
             <div className="flex-grow">
               <Skeleton className="h-6 w-3/4 mb-2" />
@@ -38,7 +39,7 @@ const CartItem = ({ item, onUpdateCart, onRemoveItem }) => {
               <Skeleton className="h-8 w-16" />
               <Skeleton className="h-8 w-8" />
             </div>
-            <div className="text-right">
+            <div>
               <Skeleton className="h-6 w-20 mb-2" />
               <Skeleton className="h-8 w-24" />
             </div>
@@ -55,60 +56,63 @@ const CartItem = ({ item, onUpdateCart, onRemoveItem }) => {
   return (
     <Card className="mb-4">
       <CardContent className="p-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <Image
-            src={product.thumbnail || "/placeholder.svg"}
-            alt={product.title}
-            width={80}
-            height={80}
-            className="rounded-md object-cover"
-          />
-          <div className="flex-grow">
-            <h3 className="font-semibold">{product.title}</h3>
-            <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon" onClick={() => onUpdateCart(item.id, item.quantity - 1)}>
-              <Minus className="h-4 w-4" />
-            </Button>
-            <Input
-              type="number"
-              min="0"
-              value={item.quantity}
-              onChange={(e) => onUpdateCart(item.id, Number.parseInt(e.target.value, 10) || 0)}
-              className="w-16 text-center"
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center space-x-4">
+            <Image
+              src={product.thumbnail || "/placeholder.svg"}
+              alt={product.title}
+              width={80}
+              height={80}
+              className="rounded-md object-cover"
             />
-            <Button variant="outline" size="icon" onClick={() => onUpdateCart(item.id, item.quantity + 1)}>
-              <Plus className="h-4 w-4" />
-            </Button>
+            <div className="flex-grow">
+              <h3 className="font-semibold">{product.title}</h3>
+              <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
+            </div>
           </div>
-          <div className="text-right">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="icon" onClick={() => onUpdateCart(item.id, item.quantity - 1)}>
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Input
+                type="number"
+                min="0"
+                value={item.quantity}
+                onChange={(e) => onUpdateCart(item.id, Number.parseInt(e.target.value, 10) || 0)}
+                className="w-16 text-center"
+              />
+              <Button variant="outline" size="icon" onClick={() => onUpdateCart(item.id, item.quantity + 1)}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
             <p className="font-semibold">${itemTotal.toFixed(2)}</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onRemoveItem(item.id)}
-              className="text-red-500 hover:text-red-700"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Remove</span>
-            </Button>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onRemoveItem(item.id)}
+            className="text-red-500 hover:text-red-700 self-end"
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Remove
+          </Button>
         </div>
       </CardContent>
     </Card>
   )
 }
 
-export default function CartPage() {
-  const router = useRouter()
+const CartContent = () => {
   const { data: session, status } = useSession()
   const userId = session?.user?.id
+  const router = useRouter()
 
   const {
     data: cartItems,
     isLoading: isCartLoading,
     isError,
+    refetch: refetchCart,
   } = useGetCartQuery(userId, {
     skip: !userId,
   })
@@ -117,7 +121,7 @@ export default function CartPage() {
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
 
-  const handleUpdateCart = async (id, newQuantity) => {
+  const handleUpdateCart = async (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       try {
         await removeFromCart({ id }).unwrap()
@@ -125,6 +129,7 @@ export default function CartPage() {
           title: "Item removed",
           description: "The item has been removed from your cart.",
         })
+        refetchCart()
       } catch (error) {
         toast({
           title: "Error",
@@ -135,6 +140,7 @@ export default function CartPage() {
     } else {
       try {
         await updateCart({ id, quantity: newQuantity }).unwrap()
+        refetchCart()
       } catch (error) {
         toast({
           title: "Error",
@@ -145,13 +151,14 @@ export default function CartPage() {
     }
   }
 
-  const handleRemoveItem = async (id) => {
+  const handleRemoveItem = async (id: string) => {
     try {
       await removeFromCart({ id }).unwrap()
       toast({
         title: "Item removed",
         description: "The item has been removed from your cart.",
       })
+      refetchCart()
     } catch (error) {
       toast({
         title: "Error",
@@ -161,38 +168,18 @@ export default function CartPage() {
     }
   }
 
-  // Calculate the total
   const total = cartItems
     ? cartItems.reduce((sum, item) => {
-      const productPrice = item.product?.price || 0
-      return sum + productPrice * item.quantity
+      const { data: product } = useFetchSingleProductQuery(item.productId)
+      return sum + (product ? product.price * item.quantity : 0)
     }, 0)
     : 0
-
-  if (status === "unauthenticated") {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-md mx-auto">
-          <CardContent className="pt-6 text-center">
-            <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">Sign in to view your cart</h2>
-            <p className="text-muted-foreground mb-4">
-              Create an account or sign in to see your shopping cart and complete your purchase.
-            </p>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <Button onClick={() => router.push("/sign-in")}>Sign In</Button>
-          </CardFooter>
-        </Card>
-      </div>
-    )
-  }
 
   if (isCartLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             {[...Array(3)].map((_, index) => (
               <Skeleton key={index} className="h-[100px] w-full mb-4" />
@@ -211,6 +198,9 @@ export default function CartPage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Error loading cart items</h1>
         <p>Please try again later.</p>
+        <Button onClick={refetchCart} className="mt-4">
+          Retry
+        </Button>
       </motion.div>
     )
   }
@@ -222,9 +212,9 @@ export default function CartPage() {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-8"
     >
-      <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
+      <h1 className="text-3xl font-bold mb-8 ">Your Cart</h1>
       {cartItems && cartItems.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <AnimatePresence>
               {cartItems.map((item) => (
@@ -240,7 +230,7 @@ export default function CartPage() {
               ))}
             </AnimatePresence>
           </div>
-          <div>
+          <div className="lg:col-span-1">
             <Card className="sticky top-4">
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
@@ -276,12 +266,14 @@ export default function CartPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-center"
+          className="text-center px-4"
         >
           <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-          <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
-          <p className="text-muted-foreground mb-4">Looks like you haven't added any items to your cart yet.</p>
-          <Button asChild>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Your cart is empty</h2>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
+            Looks like you haven't added any items to your cart yet.
+          </p>
+          <Button asChild className="w-full sm:w-auto">
             <a href="/products">Start Shopping</a>
           </Button>
         </motion.div>
@@ -290,3 +282,48 @@ export default function CartPage() {
     </motion.div>
   )
 }
+
+export default function CartPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  if (status === "loading") {
+    return <div className="container mx-auto px-4 py-8">Loading...</div>
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">Sign in to view your cart</h2>
+            <p className="text-muted-foreground mb-4">
+              Create an account or sign in to see your shopping cart and complete your purchase.
+            </p>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button onClick={() => router.push("/sign-in")}>Sign In</Button>
+          </CardFooter>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <ErrorBoundary
+      fallback={
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Oops! Something went wrong.</h1>
+          <p>We're sorry, but there was an error loading your cart. Please try again later.</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Reload Page
+          </Button>
+        </div>
+      }
+    >
+      <CartContent />
+    </ErrorBoundary>
+  )
+}
+

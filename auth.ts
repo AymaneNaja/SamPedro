@@ -1,6 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import type { NextAuthOptions } from "next-auth"
-import prisma from "@/lib/prisma"
 import { verify } from "argon2"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GitHubProvider from "next-auth/providers/github"

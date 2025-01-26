@@ -55,10 +55,6 @@ const FALLBACK_IMAGES = {
 }
 
 const Dashboard = () => {
-  console.log("GITHUB_CLIENT_ID:", process.env.GITHUB_CLIENT_ID);
-  console.log("GITHUB_CLIENT_SECRET:", process.env.GITHUB_CLIENT_SECRET);
-  console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-
   const router = useRouter()
   const { data: newArrivals, isLoading: isLoadingNewArrivals } = useFetchProductsQuery({ limit: 8 })
   const { data: popularCategory, isLoading: isLoadingPopularCategory } = useFetchCategoryQuery("laptops")
